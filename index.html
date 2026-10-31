@@ -317,6 +317,21 @@ details summary{cursor:pointer;color:var(--accent);font-size:14px;font-weight:60
 .gopen{width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:6px}
 .gopen .grow{flex:1;text-align:left}
 
+/* ============ aviso do guia: cartão de vidro flutuante ============ */
+.gtoast{position:fixed;left:12px;right:12px;bottom:calc(76px + var(--safe-b));z-index:40;max-width:536px;margin:0 auto;border-radius:22px;padding:16px 14px 14px 16px;
+  background:color-mix(in srgb, var(--card) 58%, transparent);-webkit-backdrop-filter:blur(22px) saturate(1.6);backdrop-filter:blur(22px) saturate(1.6);
+  border:1px solid color-mix(in srgb, #fff 55%, transparent);box-shadow:0 18px 40px rgba(40,10,20,.22),0 2px 6px rgba(40,10,20,.08),inset 0 1px 0 rgba(255,255,255,.6)}
+.gtoast[hidden]{display:none}
+.gtoast .gt-top{display:flex;gap:12px;align-items:flex-start}
+.gtoast img{width:54px;height:auto;flex:0 0 auto;margin-top:2px}
+.gtoast .gt-txt{flex:1;min-width:0}
+.gtoast b{display:block;font-size:17px;line-height:1.25;color:var(--ink)}
+.gtoast span{display:block;font-size:14px;color:var(--ink-2);margin-top:3px}
+.gtoast .gt-x{margin:-8px -6px 0 0}
+.gtoast .btn.pri{width:100%;margin-top:12px;min-height:48px;font-size:16px}
+@media (prefers-color-scheme: dark){.gtoast{border-color:rgba(255,255,255,.14);box-shadow:0 18px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.08)}}
+body.has-gtoast .fab{opacity:0;pointer-events:none}
+
 /* ============ entrada ============ */
 .intro{position:fixed;inset:0;z-index:200;background:var(--accent);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;color:#fff}
 .intro[hidden]{display:none}
@@ -372,6 +387,10 @@ details summary{cursor:pointer;color:var(--accent);font-size:14px;font-weight:60
   <div class="gbars" id="gbars"></div>
   <div class="ghead"><span id="gcount"></span><button class="icon-btn" data-act="guide-close" aria-label="Fechar guia">✕</button></div>
   <div class="gstage" id="gstage"></div>
+</div>
+<div class="gtoast" id="gtoast" hidden role="status">
+  <div class="gt-top"><img src="logo.png" alt="" aria-hidden="true"><div class="gt-txt"><b>Linda, preparei um guia rápido pra você</b><span>São 2 minutinhos pra conhecer o nosso app.</span></div><button class="icon-btn gt-x" data-act="guide-dismiss" aria-label="Fechar aviso">✕</button></div>
+  <button class="btn pri" data-act="guide-open">Ver o guia</button>
 </div>
 <div class="tip" id="tip"></div>
 <div class="toast" id="toast" role="status"></div>
@@ -514,7 +533,6 @@ function render(){
 
 function banners(){
   let h = '';
-  if (ui.guideBanner) h += `<div class="banner info" id="guideBanner"><div class="t"><b>Linda, preparei um guia rápido pra você</b></div><button class="btn sm pri" data-act="guide-open">Ver agora</button><button class="icon-btn" data-act="guide-dismiss" aria-label="Fechar aviso">×</button></div>`;
   const days = state.meta.remindDays || 14;
   const since = state.meta.lastBackup ? (now() - state.meta.lastBackup) / 864e5 : Infinity;
   const neverButBusy = !state.meta.lastBackup && state.meta.changes >= 5;
@@ -1048,8 +1066,8 @@ const A = {
     toast('Categoria apagada', {label:'Desfazer', fn: () => { c.updatedAt = now(); state.categories.push(c); delete state.deleted[c.id]; save(); render(); flash(`.setrow[data-id="${c.id}"]`); }});
   },
 
-  'guide-open': () => { ui.guideBanner = false; render(); openGuide(); },
-  'guide-dismiss': () => { ui.guideBanner = false; render(); },
+  'guide-open': () => { hideGuideToast(); openGuide(); },
+  'guide-dismiss': () => hideGuideToast(),
   'guide-close': () => closeGuide(),
   'guide-next': () => guideShow(gIdx + 1, 1),
   'guide-prev': () => guideShow(gIdx - 1, -1),
@@ -1499,8 +1517,26 @@ function closeGuide(){
   });
 })();
 
+/* aviso de vidro: aparece só na 1ª abertura, depois que a entrada termina */
+function showGuideToast(){
+  if (!ui.guideBanner) return;
+  if (document.getElementById('intro')) return setTimeout(showGuideToast, 300);   // espera a entrada acabar
+  const t = $('#gtoast'); t.hidden = false; document.body.classList.add('has-gtoast');
+  if (MOTION){
+    gsap.fromTo(t, {y: 60, autoAlpha: 0, scale: .96}, {y: 0, autoAlpha: 1, scale: 1, duration: .6, ease: 'back.out(1.6)', delay: .5});
+    gsap.fromTo('#gtoast img', {rotate: -12, scale: .7}, {rotate: 0, scale: 1, duration: .8, ease: 'elastic.out(1, .5)', delay: .75});
+  }
+}
+function hideGuideToast(){
+  ui.guideBanner = false;
+  const t = $('#gtoast'); if (t.hidden) return;
+  const end = () => { t.hidden = true; document.body.classList.remove('has-gtoast'); };
+  if (MOTION) gsap.to(t, {y: 50, autoAlpha: 0, duration: .3, ease: 'power2.in', onComplete: end}); else end();
+}
+
 render();
 playIntro();
+showGuideToast();
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
