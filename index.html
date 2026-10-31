@@ -494,7 +494,7 @@ let ui = { tab:'quero', wishCat:'all', search:'',
   done: { cat:'all', period:'all', from:'', to:'', sort:'recent' },
   stat: { cat:'all', period:'all', from:'', to:'' } };
 try { ui.tab = sessionStorage.getItem('tab') || 'quero'; } catch(_){}
-ui.guideBanner = guideBannerFirst;
+ui.guideBanner = guideBannerFirst || /[?&]guia\b/.test(location.search);   // ?guia no link força o aviso (teste)
 const fx = { statFilter:false, prevKpi:{} };   // pedidos de animação para o próximo render
 
 function inPeriod(d, f){
