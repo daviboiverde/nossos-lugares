@@ -1,5 +1,5 @@
 // Faz o app abrir mesmo sem internet. Sempre tenta a versão mais nova primeiro.
-const CACHE = 'nossos-lugares-v16';
+const CACHE = 'nossos-lugares-v17';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './favicon.ico', './favicon-32.png', './logo.png', './intro-poster.jpg', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js'];
 
 self.addEventListener('install', e => {

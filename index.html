@@ -515,11 +515,6 @@ function render(){
 function banners(){
   let h = '';
   if (ui.guideBanner) h += `<div class="banner info" id="guideBanner"><div class="t"><b>Linda, preparei um guia rápido pra você</b></div><button class="btn sm pri" data-act="guide-open">Ver agora</button><button class="icon-btn" data-act="guide-dismiss" aria-label="Fechar aviso">×</button></div>`;
-  const standalone = window.navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  if (!standalone && isIOS && !state.meta.hideInstall){
-    h += `<div class="banner info"><div class="t"><b>Instale na tela de início</b> para não perder os dados</div><button class="btn sm ghost" data-act="install-help">Como?</button><button class="icon-btn" data-act="hide-install" aria-label="Fechar aviso">×</button></div>`;
-  }
   const days = state.meta.remindDays || 14;
   const since = state.meta.lastBackup ? (now() - state.meta.lastBackup) / 864e5 : Infinity;
   const neverButBusy = !state.meta.lastBackup && state.meta.changes >= 5;
